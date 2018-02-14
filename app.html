@@ -1,0 +1,155 @@
+
+<!doctype html>
+<html lang='en'>
+  <head>
+
+    <style>
+      body { margin:0; padding:0 }
+      canvas { width:100%; height:100% }
+    </style>
+
+    <body>
+    <canvas></canvas>
+  </body>
+
+  <script>
+    // Karl Sims RD tutorial: http://www.karlsims.com/rd.html
+    // Video tutorial using p5.js (don't use p5.js!)
+    // https://www.youtube.com/watch?v=BV9ny785UNc
+    
+    // calculating large grids can get expensive very quickly
+    // experiment with different values to see how high you can go
+    const width = 200, 
+          height = 200
+    
+    let canvas, ctx, grid, tmp
+
+    // setup after canvas is instantiated
+    window.onload = function() {
+      canvas = document.querySelector( 'canvas' )
+      ctx = canvas.getContext( '2d' )
+      canvas.width = width
+      canvas.height = height
+	  this.grid = [];
+	  this.tmp = [];
+	  for(let x = 0; x < width; x++) {
+		this.grid[x] = [];
+		this.tmp[x] = [];
+		for(let y = 0; y < height; y++) {
+			this.grid[x][y] = { a: 1, b: 0 };
+			this.tmp[x][y] = { a: 1, b: 0 };
+		}
+	  }
+	  
+	  for (var i = 100; i < 110; i++) {
+	  	for (var j = 100; j < 110; j++) {
+			this.grid[i][j].b = 1;
+	  	}
+	  }
+	 
+      requestAnimationFrame( draw )
+    }
+	
+    const draw = function() {
+      requestAnimationFrame( draw )
+      
+      ctx.fillStyle = 'black'
+      ctx.fillRect( 0,0, width, height )
+      
+      // get a reference to all the pixels stored in our canvas
+      // so that we can write them to the screen all at once instead
+      // of using hundreds of calls to fillRect(), which would be
+      // expensive!
+      let imgd = ctx.getImageData(0, 0, width, height),
+          pixels = imgd.data
+
+      const dA = 1,
+	        dB = 0.5,
+	  	    feed = 0.055,
+	  	    k = 0.062
+
+      // run simulation here...
+	  for( let x = 1; x < width-1; x++ ) {
+        for( let y = 1; y < height-1; y++ ) {
+			let a = this.grid[x][y].a;
+			let b = this.grid[x][y].b;
+
+			tmpA = a +
+   					(dA * laplaceA(x, y)) -
+       				(a * b * b) +
+       				(feed * (1 - a));
+      		tmpB = b +
+        			(dB * laplaceB(x, y)) +
+        			(a * b * b) -
+        			((k + feed) * b);
+
+			this.tmp[x][y].a = constrain(tmpA,0,1);
+			this.tmp[x][y].a = constrain(tmpB,0,1);	
+		}
+	  }
+
+      // ... and then draw
+      for( let x = 0; x < width; x++ ) {
+        for( let y = 0; y < height; y++ ) {
+          let pixelIndex = (y * width * 4 ) + ( x * 4 )
+          
+          // create a value based on some combination of a and b
+          // for this particular cell... NOTE THAT THIS WILL THROW
+          // AN ERROR UNTIL YOU FILL IN THE VALUE
+		  let a = this.tmp[x][y].a;
+		  let b = this.tmp[x][y].b;
+		  let ammount = Math.floor((a - b) * 255);
+		  ammount = constrain(ammount, 0, 255);
+
+          pixels[ pixelIndex ]     = ammount
+          pixels[ pixelIndex + 1 ] = ammount
+		  pixels[ pixelIndex + 2 ] = ammount
+          pixels[ pixelIndex + 3 ] = 255
+        }
+      }
+
+      ctx.putImageData( imgd, 0, 0 )
+
+      let swap = this.grid
+      this.grid = this.tmp
+      this.tmp = swap
+    }
+    
+	function laplaceA(x, y) {
+		let sum = 0;
+
+		sum += this.grid[x][y].a * -1;
+        sum += this.grid[x-1][y].a * 0.2;
+		sum += this.grid[x+1][y].a * 0.2;
+		sum += this.grid[x][y+1].a * 0.2;
+		sum += this.grid[x][y-1].a * 0.2;
+		sum += this.grid[x-1][y-1].a * 0.5;
+		sum += this.grid[x+1][y-1].a * 0.5;
+		sum += this.grid[x+1][y+1].a * 0.5;
+		sum += this.grid[x-1][y+1].a * 0.5;
+
+		return sum;
+	}
+	function laplaceB(x, y) {
+		let sum = 0;
+
+		sum += this.grid[x][y].b * -1;
+        sum += this.grid[x-1][y].b * 0.2;
+		sum += this.grid[x+1][y].b * 0.2;
+		sum += this.grid[x][y+1].b * 0.2;
+		sum += this.grid[x][y-1].b * 0.2;
+		sum += this.grid[x-1][y-1].b * 0.5;
+		sum += this.grid[x+1][y-1].b * 0.5;
+		sum += this.grid[x+1][y+1].b * 0.5;
+		sum += this.grid[x-1][y+1].b * 0.5;
+
+		return sum;
+	}
+	function constrain(val, min, max) {
+		if(val < min) { val = min }
+		else if(val > max) { val = max }
+		return val;
+	}
+  </script>
+
+</html>
