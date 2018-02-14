@@ -74,14 +74,8 @@
 			let a = this.grid[x][y].a;
 			let b = this.grid[x][y].b;
 
-			tmpA = a +
-   					(dA * laplaceA(x, y)) -
-       				(a * b * b) +
-       				(feed * (1 - a));
-      		tmpB = b +
-        			(dB * laplaceB(x, y)) +
-        			(a * b * b) -
-        			((k + feed) * b);
+			tmpA = a + (dA * laplaceA(x, y)) - (a * b * b) + (feed * (1 - a));
+			tmpB = b + (dB * laplaceB(x, y)) + (a * b * b) -((k + feed) * b);
 
 			this.tmp[x][y].a = constrain(tmpA,0,1);
 			this.tmp[x][y].a = constrain(tmpB,0,1);	
@@ -119,7 +113,7 @@
 		let sum = 0;
 
 		sum += this.grid[x][y].a * -1;
-        sum += this.grid[x-1][y].a * 0.2;
+		sum += this.grid[x-1][y].a * 0.2;
 		sum += this.grid[x+1][y].a * 0.2;
 		sum += this.grid[x][y+1].a * 0.2;
 		sum += this.grid[x][y-1].a * 0.2;
@@ -134,7 +128,7 @@
 		let sum = 0;
 
 		sum += this.grid[x][y].b * -1;
-        sum += this.grid[x-1][y].b * 0.2;
+		sum += this.grid[x-1][y].b * 0.2;
 		sum += this.grid[x+1][y].b * 0.2;
 		sum += this.grid[x][y+1].b * 0.2;
 		sum += this.grid[x][y-1].b * 0.2;
